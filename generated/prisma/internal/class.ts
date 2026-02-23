@@ -23,7 +23,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "/home/coder/code/saitiyobackend/generated/prisma",
+      "value": "/home/coder/code/saitiyo/saitiyobackend/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -37,7 +37,7 @@ const config: runtime.GetPrismaClientConfig = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/coder/code/saitiyobackend/prisma/schema.prisma",
+    "sourceFilePath": "/home/coder/code/saitiyo/saitiyobackend/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "../../prisma",
@@ -47,6 +47,7 @@ const config: runtime.GetPrismaClientConfig = {
     "db"
   ],
   "activeProvider": "mongodb",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -55,8 +56,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel admin {\n  id        String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  firstName String\n  lastName  String\n  email     String\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @default(now()) @updatedAt\n}\n\nmodel user {\n  id        String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  firstName String\n  lastName  String\n  email     String\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @default(now()) @updatedAt\n}\n",
-  "inlineSchemaHash": "f4947620c527d3d83e6d514582b607f118ec99eaba4c10d96a89a0e65c8de0bb",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel admin {\n  id        String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  firstName String\n  lastName  String\n  email     String\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @default(now()) @updatedAt\n}\n\nmodel user {\n  id        String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  firstName String\n  lastName  String\n  email     String\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @default(now()) @updatedAt\n}\n",
+  "inlineSchemaHash": "6f8cbd7693145eb1ba90f370def147ca234b072399cbf1c19559c5f0465ff0c4",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},
