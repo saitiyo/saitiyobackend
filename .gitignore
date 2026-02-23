@@ -1,21 +1,3 @@
-
-#dist
-dist/
-build/
-
-
-# node.js
-#
-node_modules/
-
-# yarn folder
-#.yarn/*
-
-npm-debug.log
-yarn-error.log
-
-# testing
-/coverage
-
-#
+node_modules
+# Keep environment variables out of version control
 .env
