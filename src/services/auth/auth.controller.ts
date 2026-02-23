@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import {prisma }from "../../lib/prisma";
+import { User } from "../../db/models/models";
 import bcrypt from 'bcryptjs'
 import { generateJWT } from "../../utils/managejwt";
 
@@ -16,18 +16,16 @@ class AuthController {
         try {
 
             const {email,password,firstName,lastName} = req.body 
-      
-        let response = await prisma .user.findFirst({
-            where: {
-              email: email,
-            },
-          })
 
-          /**
-           * account already exists
-           */
+        let response = await User.findOne({
+            email: email,
+        })
 
-          if(response){
+        /**
+         * account already exists
+         */
+
+        if(response){
 
             res.json({
                 isError:true,
@@ -48,16 +46,13 @@ class AuthController {
            let salt = await bcrypt.genSaltSync(10)
            let hash = await bcrypt.hashSync(password, salt)
 
-
-           const newUser = await prisma.user.create({
-            data:{
-                firstName:firstName,
-                lastName:lastName,
-                email:email,
-                password:hash
-            }
+           const newUser = await User.create({
+               firstName:firstName,
+               lastName:lastName,
+               email:email,
+               passwordHash:hash
            })
-           
+
           res.json({
             isError: false,
             message: "account created successfully",
@@ -86,18 +81,16 @@ class AuthController {
        try {
 
         const {email,password} = req.body 
-      
-        let response = await prisma.user.findFirst({
-            where: {
-              email: email,
-            },
-          })
 
-          /**
-           * account does not exist
-           */
+        let response = await User.findOne({
+            email: email,
+        })
 
-          if(!response){
+        /**
+         * account does not exist
+         */
+
+        if(!response){
 
             res.status(400).json({
                 isError:true,
@@ -116,7 +109,7 @@ class AuthController {
 
           let isCorrect =  bcrypt.compareSync(
             password,
-             response.password,
+             response.passwordHash,
            )
   
            if(!isCorrect){

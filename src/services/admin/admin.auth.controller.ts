@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import {prisma }from "../../lib/prisma";
+import { Admin } from "../../db/models/models";
 import bcrypt from 'bcryptjs'
 import { generateJWT } from "../../utils/managejwt";
 
@@ -17,10 +17,8 @@ class AdminAuthController {
 
           const {email,password,firstName,lastName} = req.body 
       
-          let response = await prisma .admin.findFirst({
-            where: {
-              email: email,
-            },
+          let response = await Admin.findOne({
+            email: email,
           })
 
           /**
@@ -49,13 +47,11 @@ class AdminAuthController {
            let hash = await bcrypt.hashSync(password, salt)
 
 
-           const newadmin = await prisma.admin.create({
-            data:{
+           const newadmin = await Admin.create({
                 firstName:firstName,
                 lastName:lastName,
                 email:email,
-                password:hash
-            }
+                passwordHash:hash
            })
            
           res.json({
@@ -86,18 +82,16 @@ class AdminAuthController {
        try {
 
         const {email,password} = req.body 
-      
-        let response = await prisma.admin.findFirst({
-            where: {
-              email: email,
-            },
-          })
 
-          /**
-           * account does not exist
-           */
+        let response = await Admin.findOne({
+            email: email,
+        })
 
-          if(!response){
+        /**
+         * account does not exist
+         */
+
+        if(!response){
 
             res.status(400).json({
                 isError:true,
@@ -116,7 +110,7 @@ class AdminAuthController {
 
           let isCorrect =  bcrypt.compareSync(
             password,
-             response.password,
+             response.passwordHash,
            )
   
            if(!isCorrect){
