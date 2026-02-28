@@ -108,6 +108,8 @@ class AuthController {
             //     stack: error instanceof Error ? error.stack : undefined
             // });
 
+            console.log(error)
+
             res.status(500).json(
                 {
                         isError: true,

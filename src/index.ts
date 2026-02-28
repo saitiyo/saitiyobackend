@@ -3,7 +3,7 @@ dotenv.config();
 
 import mongoose from 'mongoose';
 
-import app from "./server"
+import httpServer from "./server"
 
 
 const DATABASE_URL = process.env.DATABASE_URL
@@ -20,10 +20,16 @@ mongoose.connect( DATABASE_URL).then(() => {
     console.error("MongoDB connection error:", err);
 });
 
+//kill mogoose connection on app termination
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  process.exit(0);
+});
+
 
 const PORT:any = process.env.PORT || 8080
 
-app.listen(PORT,'0.0.0.0',()=>{
+httpServer.listen(PORT,'0.0.0.0',()=>{
     console.log(`sever running on port ${PORT}`)
 })
 
