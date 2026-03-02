@@ -84,16 +84,16 @@ app.use(`${apiPrefix}/auth`, authRouter);
   async()=>{
    await server.start()
 
-
-      
    /**
- * This is the main GRAPHQL end point
- */
+   * This is the main GRAPHQL end point
+  */
+ 
   //  app.use("/gql/", expressMiddleware(server))
    app.use("/gql/", expressMiddleware(server,{context:context}))
 
   }
  )();
+
 
 
 

@@ -160,7 +160,9 @@ class AuthController {
                 pin_id:pin_id.trim(),
                 pin:pin.trim()
             }
+            
 
+            
 
             //check if country is supported or not
             const country = await Country.findOne({
