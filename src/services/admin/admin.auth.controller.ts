@@ -126,6 +126,8 @@ class AdminAuthController {
           }
     
           let token = await generateJWT(_data)
+
+          console.log("token000000000",token)
            
           res.status(200).json({
             isError: false,
