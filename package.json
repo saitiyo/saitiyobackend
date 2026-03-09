@@ -38,6 +38,9 @@
     "typescript": "^5.9.3",
     "ws": "^8.19.0"
   },
+   "engines": {
+    "node": "22"
+  },
   "devDependencies": {
     "@types/node": "^25.0.10",
     "@types/pg": "^8.16.0",

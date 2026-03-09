@@ -82,6 +82,10 @@ app.use(cors({
 app.use(`${apiPrefix}/admin`,adminAuthRouter);
 app.use(`${apiPrefix}/auth`, authRouter);
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 
 (
   async()=>{
