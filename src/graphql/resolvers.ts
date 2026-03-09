@@ -1,12 +1,14 @@
 
 import { mergeResolvers } from "@graphql-tools/merge"
 
-import ProjectResolvers from "../services/projects/project.resolvers"
+import SiteResolvers from "../services/sites/site.resolvers"
 import CountryResolvers from "../services/admin/country/country.resolvers"
+import { AuthResolvers } from "../services/auth/auth.resolvers"
 
 // Combine all resolvers into a single export
 
 export const allResolvers = mergeResolvers([
-  ProjectResolvers,
-  CountryResolvers
+  SiteResolvers,
+  CountryResolvers,
+  AuthResolvers
 ])

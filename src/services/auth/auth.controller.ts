@@ -3,6 +3,7 @@ import { Country, Device, User, UserLocation } from "../../db/models/models";
 import bcrypt from 'bcryptjs'
 import { decodeJWT, generateJWT } from "../../utils/managejwt";
 import axios from "axios";
+import generateToken from "../../utils/generateToken";
 
 
 
@@ -266,6 +267,8 @@ class AuthController {
                 }
             })
 
+            console.log("user device:", userDevice)
+
 
             //If it doesnt exist add
             if(!userDevice){
@@ -318,7 +321,8 @@ class AuthController {
 
 
               } catch (error) {
-
+                   
+                  console.log(error,"=====auth errr")
                   res.status(500).json(
                   {
                       message: "Something has gone wrong",
@@ -400,18 +404,16 @@ class AuthController {
 
             console.log("token:", token)
 
-             const {artistId}:any = await decodeJWT(token)
+            const {id}:any = await decodeJWT(token)
+
+            console.log("user id:", id)
              
-        
-           
             const user = await User.findOne({
-                where:{
-                    id:artistId
-                },
-                include:{
-                    artistAccount:true
-                }
+            _id:id
             })
+
+
+            console.log("user:",user)
 
             if(!user){
                 res.json({
@@ -429,6 +431,40 @@ class AuthController {
                   payload:user
               })
     
+    
+              } catch (error) {
+                 console.log(error)
+                  res.json(
+                  {
+                      isError: true,
+                      msg: "Something has gone wrong",
+                      token: null,
+                  }
+             )}
+      }
+
+       public static getQRcodeData = async ( 
+        req: Request,
+        res: Response,
+        next: NextFunction): Promise<any> => {
+        try {
+
+             const webSessionId = generateToken();
+             const authToken = generateToken();
+             const expiresAt = Date.now() + 120000; // 2 minutes expiry
+
+             console.log("Generated QR code data:", {   webSessionId, authToken, expiresAt })
+
+              res.json({
+                  isError:false,
+                  message:"Operation successful",
+                  payload:{
+                    webSessionId,
+                    authToken,
+                    expiresAt
+                  }
+              })
+              
     
               } catch (error) {
                  console.log(error)

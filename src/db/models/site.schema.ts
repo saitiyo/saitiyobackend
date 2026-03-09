@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
 
-const ProjectSchema = new Schema({
+const SiteSchema = new Schema({
   name: { type: String, required: true },
   logoUrl: { type: String }, // For the building icons
   status: { 
@@ -18,4 +18,4 @@ const ProjectSchema = new Schema({
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } 
 });
 
-export const Project = model('Project', ProjectSchema);
+export const Site = model('Site', SiteSchema);

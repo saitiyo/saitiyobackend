@@ -70,7 +70,10 @@ const server = new ApolloServer({
 
 
 
-app.use(cors(), bodyParser.json());
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}), bodyParser.json());
 
 
 /**

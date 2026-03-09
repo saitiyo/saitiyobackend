@@ -26,6 +26,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "graphql": "^16.13.0",
+    "graphql-subscriptions": "^3.0.0",
     "graphql-tag": "^2.12.6",
     "graphql-tools": "^9.0.26",
     "graphql-ws": "^6.0.7",
