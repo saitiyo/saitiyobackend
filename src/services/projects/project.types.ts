@@ -7,6 +7,7 @@ const projectTypes = /* GraphQL */ `
             daysLeft: Int
             progress: Float
             notificationCount: Int
+            endDate: String
         }
 
         enum ProjectStatus {
