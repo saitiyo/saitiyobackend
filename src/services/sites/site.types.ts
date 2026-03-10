@@ -1,16 +1,16 @@
-const projectTypes = /* GraphQL */ `
-           type Project {
+const siteTypes = /* GraphQL */ `
+           type Site {
             id: ID!
             name: String!
             logoUrl: String
-            status: ProjectStatus!
+            status: SiteStatus!
             daysLeft: Int
             progress: Float
             notificationCount: Int
             endDate: String
         }
 
-        enum ProjectStatus {
+        enum SiteStatus {
         IN_PROGRESS
         CLOSED
         ON_HOLD
@@ -18,18 +18,19 @@ const projectTypes = /* GraphQL */ `
 
         type Query {
         # Returns the list of projects for the dashboard
-        projects: [Project]
-        project(id: ID!): Project
+        getMySites(userId:ID!): [Site]
+        getSite(id: ID!): Site
         }
 
         type Mutation {
         # Handles the "Add New" button logic
-        createProject(
+        createSite(
+            userId:ID!
             name: String!, 
             endDate: String!, 
             logoUrl: String
-        ): Project
+        ): Site
   }
 `
 
-export default projectTypes;
+export default siteTypes;

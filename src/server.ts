@@ -70,7 +70,10 @@ const server = new ApolloServer({
 
 
 
-app.use(cors(), bodyParser.json());
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}), bodyParser.json());
 
 
 /**
@@ -78,6 +81,10 @@ app.use(cors(), bodyParser.json());
  */
 app.use(`${apiPrefix}/admin`,adminAuthRouter);
 app.use(`${apiPrefix}/auth`, authRouter);
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 
 (
