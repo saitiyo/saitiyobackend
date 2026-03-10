@@ -1,8 +1,31 @@
+import { GraphQLError } from "graphql";
 import { Site } from "../../db/models/site.schema";
 import { differenceInDays } from 'date-fns';
 
 const SiteResolvers = {
   Query: {
+    getSites: async () => {
+      try {
+        const sites = await Site.find();
+        return sites.map(Site => {
+          // Logic for "Days Left" using date-fns
+          const now = new Date();
+          const end = new Date(Site.endDate);
+          const daysLeft = Math.max(0, differenceInDays(end, now));
+          return {
+            ...Site.toObject(),
+            daysLeft
+          };
+        }); 
+      } catch (error) {
+        throw new GraphQLError('Failed to fetch sites', {
+          extensions: {
+            code: 'INTERNAL_SERVER_ERROR',  
+          }
+        });   
+
+      }
+     },
     getMySites: async (_:any,{userId}:{userId:string}) => {
         
       const mySites = await Site.find({

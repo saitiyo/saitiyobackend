@@ -1,6 +1,6 @@
 const siteTypes = /* GraphQL */ `
            type Site {
-            id: ID!
+            _id: ID!
             name: String!
             logoUrl: String
             status: SiteStatus!
@@ -18,6 +18,7 @@ const siteTypes = /* GraphQL */ `
 
         type Query {
         # Returns the list of projects for the dashboard
+        getSites: [Site]
         getMySites(userId:ID!): [Site]
         getSite(id: ID!): Site
         }
