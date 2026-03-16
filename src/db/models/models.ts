@@ -49,7 +49,7 @@ const DeviceSchema = new Schema({
     isAndroid:{type:Boolean,required:true},
     carrier:{type:String,required:true},
     isTablet:{type:Boolean,required:true},
-    ip:{type:String,required:true},
+    ip:{type:String,required:false},
     timeZone:{type:String,default:"Africa/Kampala"},
     userId:{type:String,required:true}
 }, { timestamps: true });

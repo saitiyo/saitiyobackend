@@ -15,6 +15,7 @@ const teamMemberTypes = /* GraphQL */ `
     id:ID!
     firstName:String
     lastName:String
+    mobileNumber:String
   }
 
   type TeamMember {
