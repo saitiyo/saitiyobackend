@@ -1,6 +1,7 @@
 import { GraphQLError } from "graphql";
 import { Site } from "../../db/models/site.schema";
 import { differenceInDays } from 'date-fns';
+import { TeamMember } from "../../db/models/team.schema";
 
 const SiteResolvers = {
   Query: {
@@ -55,14 +56,40 @@ const SiteResolvers = {
 
   Mutation: {
     createSite: async (_:any, { name, endDate, logoUrl,userId }:{name:string, endDate:string, logoUrl:string,userId:string}) => {
-      const newSite = new Site({
+     try {
+
+       const newSite = new Site({
         owner:userId,
         name,
         endDate,
         logoUrl,
         status: 'IN_PROGRESS'
       });
-      return await newSite.save();
+      
+
+
+      const new_site = await newSite.save();
+      //add user with userId as site first team member
+       
+     await TeamMember.create({
+        siteId: new_site._id,
+        userId: userId,
+        role: 'OWNER',
+        status: 'ACTIVE'     
+      });
+
+
+      return new_site
+
+      
+     } catch (error) {
+      console.log('Error creating site:', error);
+      throw new GraphQLError('Failed to create site', {
+        extensions: {
+          code: 'INTERNAL_SERVER_ERROR',  
+        }   
+      });
+     }
     }
   }
 };

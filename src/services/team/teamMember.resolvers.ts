@@ -55,18 +55,96 @@ const teamMemberResolvers = {
           status: 'PENDING',
           expiresAt: { $gt: new Date() } // Not expired
         })
-          .populate('siteId', 'name logoUrl')
-          .populate('invitedByUser', 'firstName lastName email mobileNumber')
           .sort({ createdAt: -1 });
+
+
+        const  _invitedBy = await User.findById(invitations[0]?.invitedBy);
 
         return invitations.map((invitation) => ({
           ...invitation.toObject(),
           id: invitation._id,
-          siteName: invitation.toObject().siteId|| '',
-          invitedByUser: invitation.toObject().invitedBy
+          siteName:'MY SITE',
+          invitedByUser:_invitedBy ? {
+            id: _invitedBy._id,
+            firstName: _invitedBy.firstName,
+            lastName: _invitedBy.lastName,
+            email: _invitedBy.email,
+            mobileNumber: _invitedBy.mobileNumber
+          } : null
         }));
+        
+
       } catch (error) {
         console.error("Error fetching pending invitations:", error);
+        throw new Error("Failed to fetch invitations");
+      }
+    },
+     /**
+     * Get all pending invitations for a user
+     */
+    getAcceptedInvitations: async (_: any, { userId }: { userId: string }) => {
+      try {
+        const invitations = await Invitation.find({
+          invitedUser: userId,
+          status: 'ACCEPTED',
+          expiresAt: { $gt: new Date() } // Not expired
+        })
+          .sort({ createdAt: -1 });
+
+
+        const  _invitedBy = await User.findById(invitations[0]?.invitedBy);
+
+        return invitations.map((invitation) => ({
+          ...invitation.toObject(),
+          id: invitation._id,
+          siteName:'MY SITE',
+          invitedByUser:_invitedBy ? {
+            id: _invitedBy._id,
+            firstName: _invitedBy.firstName,
+            lastName: _invitedBy.lastName,
+            email: _invitedBy.email,
+            mobileNumber: _invitedBy.mobileNumber
+          } : null
+        }));
+        
+
+      } catch (error) {
+        console.error("Error fetching accepted invitations:", error);
+        throw new Error("Failed to fetch invitations");
+      }
+    },
+
+     /**
+     * Get all pending invitations for a user
+     */
+    getRejectedInvitations: async (_: any, { userId }: { userId: string }) => {
+      try {
+        const invitations = await Invitation.find({
+          invitedUser: userId,
+          status: 'REJECTED',
+          expiresAt: { $gt: new Date() } // Not expired
+        })
+          .sort({ createdAt: -1 });
+
+
+        const  _invitedBy = await User.findById(invitations[0]?.invitedBy);
+
+        return invitations.map((invitation) => ({
+          ...invitation.toObject(),
+          id: invitation._id,
+          siteName:'MY SITE',
+          invitedByUser:_invitedBy ? {
+            id: _invitedBy._id,
+            firstName: _invitedBy.firstName,
+            lastName: _invitedBy.lastName,
+            email: _invitedBy.email,
+            mobileNumber: _invitedBy.mobileNumber
+          } : null
+        }));
+        
+
+      } catch (error) {
+        console.error("Error fetching rejected invitations:", error);
         throw new Error("Failed to fetch invitations");
       }
     },

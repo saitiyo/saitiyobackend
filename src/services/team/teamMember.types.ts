@@ -75,6 +75,12 @@ const teamMemberTypes = /* GraphQL */ `
     # Get all pending invitations for logged-in user
     getMyPendingInvitations(userId: ID!): [Invitation]!
 
+   # Get all accepted invitations for logged-in user
+    getAcceptedInvitations(userId: ID!): [Invitation]!
+
+     # Get all rejected invitations for logged-in user
+    getRejectedInvitations(userId: ID!): [Invitation]!
+
     # Get all invitations sent for a site
     getSiteInvitations(siteId: ID!): [Invitation]!
 
