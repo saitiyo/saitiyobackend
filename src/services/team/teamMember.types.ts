@@ -56,7 +56,6 @@ const teamMemberTypes = /* GraphQL */ `
   type TeamMemberResponse {
     success: Boolean!
     message: String!
-    data: TeamMember
   }
 
   type InvitationResponse {

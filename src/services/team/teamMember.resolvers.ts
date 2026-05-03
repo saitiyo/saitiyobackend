@@ -314,19 +314,10 @@ const teamMemberResolvers = {
         });
 
         const savedInvitation = await invitation.save();
-        const populatedInvitation = await Invitation.findById(savedInvitation._id)
-          .populate('siteId', 'name logoUrl')
-          .populate('invitedByUser', 'firstName lastName email mobileNumber');
-
+         
         return {
           success: true,
           message: "Invitation sent successfully",
-          data: {
-            ...populatedInvitation?.toObject(),
-            id: populatedInvitation?._id,
-            siteName: (populatedInvitation?.toObject() as any).siteId?.name || '',
-            invitedByUser: (populatedInvitation?.toObject() as any).invitedByUser
-          }
         };
       } catch (error) {
         console.error("Error sending invitation:", error);
