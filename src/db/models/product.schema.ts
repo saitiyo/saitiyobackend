@@ -2,6 +2,58 @@ import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
 
+const ProductSchema = new Schema(
+  {
+    name:        { type: String, required: true },
+    description: { type: String },
+    sku:         { type: String },
+    barcode:     { type: String },
+    isActive:    { type: Boolean, default: true },
+    vatRate:     { type: Number, default: 0 },
+ 
+    // Reorder thresholds in BASE units (site-level overrides live on SiteStock)
+    reorderLevel:    { type: Number, default: 0 },
+    reorderQuantity: { type: Number, default: 0 },
+
+    siteId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Site',
+        required: true
+     },
+ 
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductCategory",
+    },
+    defaultSupplier: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Supplier",
+    },
+  },
+  { timestamps: true }
+);
+ 
+
+
+//Product category
+
+const ProductCategorySchema = new Schema(
+  {
+    name:        { type: String, required: true },
+    description: { type: String },
+    parentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductCategory",
+      default: null,
+    },
+  },
+  { timestamps: true }
+);
+ 
+
+// For a given product, this record answers:
+// "How many base units does ONE of this UoM equal?"
+
 const ProductUnitConversionSchema = new Schema(
   {
     product: {
@@ -33,6 +85,13 @@ ProductUnitConversionSchema.index(
   { product: 1, unitOfMeasure: 1 },
   { unique: true }
 );
+
+
+
+
+export const Product = model("Product", ProductSchema);
+
+export const ProductCategory = model("ProductCategory", ProductCategorySchema);
  
 export const ProductUnitConversion = model(
   "ProductUnitConversion",
