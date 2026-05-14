@@ -58,12 +58,13 @@ const teamMemberResolvers = {
           .sort({ createdAt: -1 });
 
 
-        const  _invitedBy = await User.findById(invitations[0]?.invitedBy);
+        return invitations.map(async(invitation) => {
+          const  _invitedBy = await User.findById(invitation.invitedBy);
+          const __site = await Site.findById(invitation.siteId);
 
-        return invitations.map((invitation) => ({
-          ...invitation.toObject(),
+          return {...invitation.toObject(),
           id: invitation._id,
-          siteName:'MY SITE',
+          siteName: __site?.name || 'MY SITE',
           invitedByUser:_invitedBy ? {
             id: _invitedBy._id,
             firstName: _invitedBy.firstName,
@@ -71,7 +72,9 @@ const teamMemberResolvers = {
             email: _invitedBy.email,
             mobileNumber: _invitedBy.mobileNumber
           } : null
-        }));
+          };
+
+        });
         
 
       } catch (error) {
@@ -92,12 +95,15 @@ const teamMemberResolvers = {
           .sort({ createdAt: -1 });
 
 
-        const  _invitedBy = await User.findById(invitations[0]?.invitedBy);
+        
 
-        return invitations.map((invitation) => ({
-          ...invitation.toObject(),
+       return invitations.map(async(invitation) => {
+        const  _invitedBy = await User.findById(invitation.invitedBy);
+          const __site = await Site.findById(invitation.siteId);
+
+          return {...invitation.toObject(),
           id: invitation._id,
-          siteName:'MY SITE',
+          siteName: __site?.name || 'MY SITE',
           invitedByUser:_invitedBy ? {
             id: _invitedBy._id,
             firstName: _invitedBy.firstName,
@@ -105,7 +111,9 @@ const teamMemberResolvers = {
             email: _invitedBy.email,
             mobileNumber: _invitedBy.mobileNumber
           } : null
-        }));
+          };
+
+        });
         
 
       } catch (error) {
