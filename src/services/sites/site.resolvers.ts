@@ -56,40 +56,26 @@ const SiteResolvers = {
 
   Mutation: {
     createSite: async (_:any, { name, endDate, logoUrl,userId }:{name:string, endDate:string, logoUrl:string,userId:string}) => {
-     try {
+      try {
 
-       const newSite = new Site({
+        const newSite = new Site({
         owner:userId,
         name,
         endDate,
         logoUrl,
         status: 'IN_PROGRESS'
       });
-      
 
-
-      const new_site = await newSite.save();
-      //add user with userId as site first team member
-       
-     await TeamMember.create({
-        siteId: new_site._id,
-        userId: userId,
-        role: 'OWNER',
-        status: 'ACTIVE'     
-      });
-
-
-      return new_site
-
-      
-     } catch (error) {
-      console.log('Error creating site:', error);
-      throw new GraphQLError('Failed to create site', {
-        extensions: {
-          code: 'INTERNAL_SERVER_ERROR',  
-        }   
-      });
-     }
+      return await newSite.save();
+        
+      } catch (error) {
+        console.error('Error creating site:', error);
+        throw new GraphQLError('Failed to create site', {
+          extensions: {
+            code: 'INTERNAL_SERVER_ERROR',
+          }
+        });
+      }
     }
   }
 };
