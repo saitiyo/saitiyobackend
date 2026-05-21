@@ -260,11 +260,16 @@ const teamMemberResolvers = {
           };
         }
 
+        console.log(invitedByUserId , "is inviting to site:", siteId);
+
         // Check if inviter is owner or manager
         const inviter = await TeamMember.findOne({
           siteId,
           userId: invitedByUserId
         });
+
+        console.log("Inviter:", inviter);
+        console.log("Inviter role:", inviter?.role);
 
         if (!inviter || !['OWNER', 'MANAGER'].includes(inviter.role)) {
           return {
