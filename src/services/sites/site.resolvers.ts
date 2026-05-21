@@ -66,7 +66,20 @@ const SiteResolvers = {
         status: 'IN_PROGRESS'
       });
 
-      return await newSite.save();
+      const _newSite = await newSite.save();
+
+      //make this user a team memeber with OWNER role
+      // Create team member entry
+      const teamMember = new TeamMember({
+                siteId: _newSite._id,
+                userId,
+                role: 'OWNER',
+                status: 'ACTIVE'
+              });
+      
+       await teamMember.save();
+
+       return _newSite;
         
       } catch (error) {
         console.error('Error creating site:', error);

@@ -7,6 +7,7 @@ import teamMemberTypes from "../services/team/teamMember.types"
 import budgetTypes from "../services/budget/budget.types"
 import sitePlanTypes from "../services/plans/siteplans.types"
 import supportTeamMemberTypes from "../services/team/supportTeamMember.types"
+import unitOfMeasureTypes from "../services/unitsOfMeasure/unitsOfMeasure.types"
 
 export const typeDefs = mergeTypeDefs([
   siteTypes,
@@ -15,5 +16,6 @@ export const typeDefs = mergeTypeDefs([
   teamMemberTypes,
   budgetTypes,
   sitePlanTypes,
-  supportTeamMemberTypes 
+  supportTeamMemberTypes,
+  unitOfMeasureTypes
 ])
