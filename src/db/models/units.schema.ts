@@ -1,15 +1,14 @@
-// Defines unit NAMES once, globally. No conversion logic here.
-
 import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
-const UnitOfMeasureSchema = new Schema(
+const SystemUoMSchema = new Schema(
   {
-    name:        { type: String, required: true, unique: true }, // "bag", "strip", "box"
-    label:       { type: String },                               // "bg", "str", "bx"
+    label:       { type: String, required: true, unique: true }, // "kilogram", "bag"
+    symbol:      { type: String },                               // "kg", "bg"
     description: { type: String },                               // "50kg paper sack"
+    category:    { type: String, enum: ["weight","volume","length","quantity","area","time"], default: "quantity" },
   },
   { timestamps: true }
 );
- 
-export const UnitOfMeasure = model("UnitOfMeasure", UnitOfMeasureSchema);
+
+export const SystemUoM = model("SystemUoM", SystemUoMSchema);
