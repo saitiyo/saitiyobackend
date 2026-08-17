@@ -17,5 +17,5 @@ export const typeDefs = mergeTypeDefs([
   budgetTypes,
   sitePlanTypes,
   supportTeamMemberTypes,
-  unitOfMeasureTypes
+  // unitOfMeasureTypes
 ])

@@ -20,5 +20,5 @@ export const allResolvers = mergeResolvers([
   BudgetResolvers,
   SitePlanResolvers,
   SupportTeamMemberResolvers,
-  UnitOfMeasureResolvers
+  // UnitOfMeasureResolvers
 ])
