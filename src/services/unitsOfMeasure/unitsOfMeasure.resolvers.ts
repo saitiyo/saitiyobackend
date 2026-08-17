@@ -224,12 +224,14 @@ const InventoryResolvers = {
 
     /* ── Item ──────────────────────────────────────────── */
     createItem: async (_: any, { input }: { input: any }) => {
+
       const item = new Item({
         ...input,
         images: input.images ?? [],
         categoryPath: input.categoryPath ?? [],
         tags: input.tags ?? [],
       });
+      
       await item.save();
       return item.toObject();
     },
