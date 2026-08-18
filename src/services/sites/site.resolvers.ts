@@ -2,6 +2,14 @@ import { GraphQLError } from "graphql";
 import { Site } from "../../db/models/site.schema";
 import { differenceInDays } from 'date-fns';
 import { TeamMember } from "../../db/models/team.schema";
+import mongoose from "mongoose";
+
+type CreateSiteArgs = {
+  name: string;
+  endDate: string;
+  logoUrl?: string;
+  userId: string;
+};
 
 const SiteResolvers = {
   Query: {
@@ -55,41 +63,120 @@ const SiteResolvers = {
   },
 
   Mutation: {
-    createSite: async (_:any, { name, endDate, logoUrl,userId }:{name:string, endDate:string, logoUrl:string,userId:string}) => {
-      try {
 
-        const newSite = new Site({
-        owner:userId,
-        name,
-        endDate,
-        logoUrl,
-        status: 'IN_PROGRESS'
+    createSite: async (
+  _: unknown,
+  { name, endDate, logoUrl, userId }: CreateSiteArgs
+) => {
+  // Validate input before opening a transaction
+  const trimmedName = name?.trim();
+  const trimmedUserId = userId?.trim();
+
+  if (!trimmedName) {
+    throw new GraphQLError('Site name is required', {
+      extensions: {
+        code: 'BAD_USER_INPUT',
+      },
+    });
+  }
+
+  if (!trimmedUserId) {
+    throw new GraphQLError('User ID is required', {
+      extensions: {
+        code: 'BAD_USER_INPUT',
+      },
+    });
+  }
+
+  const parsedEndDate = new Date(endDate);
+
+  if (Number.isNaN(parsedEndDate.getTime())) {
+    throw new GraphQLError('Invalid end date', {
+      extensions: {
+        code: 'BAD_USER_INPUT',
+      },
+    });
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+
+    let createdSite: any;
+
+    await session.withTransaction(async () => {
+  const site = new Site({
+    owner: trimmedUserId,
+    name: trimmedName,
+    endDate: parsedEndDate,
+    logoUrl: logoUrl?.trim() || undefined,
+    status: 'IN_PROGRESS',
+  });
+
+  await site.save({ session });
+
+  const teamMember = await TeamMember.create(
+    [
+      {
+        siteId: site._id,
+        userId: trimmedUserId,
+        role: 'OWNER',
+        status: 'ACTIVE',
+      },
+    ],
+    { session }
+  );
+
+  createdSite = site;
+
+  console.log('Site created successfully:', {
+    siteId: site._id,
+    owner: teamMember,
+  });
+
+});
+
+    return createdSite;
+  } catch (error: unknown) {
+    console.error('Error creating site:', {
+      userId: trimmedUserId,
+      error,
+    });
+
+    // Mongoose validation errors
+    if (error instanceof mongoose.Error.ValidationError) {
+      throw new GraphQLError('Invalid site data', {
+        extensions: {
+          code: 'BAD_USER_INPUT',
+          details: Object.values(error.errors).map(
+            (validationError) => validationError.message
+          ),
+        },
       });
-
-      const _newSite = await newSite.save();
-
-      //make this user a team memeber with OWNER role
-      // Create team member entry
-      const teamMember = new TeamMember({
-                siteId: _newSite._id,
-                userId,
-                role: 'OWNER',
-                status: 'ACTIVE'
-              });
-      
-       await teamMember.save();
-
-       return _newSite;
-        
-      } catch (error) {
-        console.error('Error creating site:', error);
-        throw new GraphQLError('Failed to create site', {
-          extensions: {
-            code: 'INTERNAL_SERVER_ERROR',
-          }
-        });
-      }
     }
+
+    // Duplicate key
+    if (
+      error instanceof mongoose.mongo.MongoServerError &&
+      error.code === 11000
+    ) {
+      throw new GraphQLError('A site or team membership already exists', {
+        extensions: {
+          code: 'CONFLICT',
+        },
+      });
+    }
+
+    throw new GraphQLError('Failed to create site', {
+      extensions: {
+        code: 'INTERNAL_SERVER_ERROR',
+      },
+    });
+  } finally {
+    await session.endSession();
+  }
+},
+    
   }
 };
 
