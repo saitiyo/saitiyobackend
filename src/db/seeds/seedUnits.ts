@@ -1,183 +1,240 @@
+
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { UnitOfMeasure } from "../models/units.schema";
+import { SystemUoM } from "../models/systemUoM";
 
 dotenv.config();
 
-// ─── Seed Data ────────────────────────────────────────────────────────────────
-// Covers all unit categories typically found on construction sites:
-// Length, Area, Volume, Mass/Weight, Count, Time, Liquid, Electrical, Misc
+/**
+ * System Units of Measurement
+ *
+ * These are global/system-level UoMs.
+ * They are not tied to a specific site.
+ *
+ * ItemUoM can reference these using:
+ * systemUomId -> SystemUoM._id
+ */
 
 const units = [
+  // ─────────────────────────────────────────────────────────────
+  // LENGTH
+  // ─────────────────────────────────────────────────────────────
+  { label: "millimeter", symbol: "mm", category: "length" },
+  { label: "centimeter", symbol: "cm", category: "length" },
+  { label: "meter", symbol: "m", category: "length" },
+  { label: "kilometer", symbol: "km", category: "length" },
+  { label: "inch", symbol: "in", category: "length" },
+  { label: "foot", symbol: "ft", category: "length" },
+  { label: "yard", symbol: "yd", category: "length" },
+  { label: "linear meter", symbol: "lm", category: "length" },
+  { label: "linear foot", symbol: "lf", category: "length" },
 
-  // ── Length / Distance ───────────────────────────────────────────────────────
-  { name: "millimeter",   label: "mm",   description: "Millimeter — fine measurements, rebar spacing" },
-  { name: "centimeter",   label: "cm",   description: "Centimeter — tile dimensions, small fittings" },
-  { name: "meter",        label: "m",    description: "Meter — general structural measurements" },
-  { name: "kilometer",    label: "km",   description: "Kilometer — road works, pipeline runs" },
-  { name: "inch",         label: "in",   description: "Inch — pipe diameters, imperial fittings" },
-  { name: "foot",         label: "ft",   description: "Foot — imperial structural measurements" },
-  { name: "yard",         label: "yd",   description: "Yard — earthworks, road base" },
-  { name: "linear meter", label: "lm",   description: "Linear meter — gutters, skirting, cables" },
-  { name: "linear foot",  label: "lf",   description: "Linear foot — timber, conduit runs" },
+  // ─────────────────────────────────────────────────────────────
+  // AREA
+  // ─────────────────────────────────────────────────────────────
+  { label: "square millimeter", symbol: "mm²", category: "area" },
+  { label: "square centimeter", symbol: "cm²", category: "area" },
+  { label: "square meter", symbol: "m²", category: "area" },
+  { label: "square kilometer", symbol: "km²", category: "area" },
+  { label: "square foot", symbol: "ft²", category: "area" },
+  { label: "square yard", symbol: "yd²", category: "area" },
+  { label: "acre", symbol: "ac", category: "area" },
+  { label: "hectare", symbol: "ha", category: "area" },
 
-  // ── Area ────────────────────────────────────────────────────────────────────
-  { name: "square millimeter", label: "mm²",  description: "Square millimeter — cross-section specs" },
-  { name: "square centimeter", label: "cm²",  description: "Square centimeter — small surface areas" },
-  { name: "square meter",      label: "m²",   description: "Square meter — flooring, roofing, painting" },
-  { name: "square kilometer",  label: "km²",  description: "Square kilometer — large site surveys" },
-  { name: "square foot",       label: "ft²",  description: "Square foot — imperial area measurement" },
-  { name: "square yard",       label: "yd²",  description: "Square yard — carpeting, earthworks" },
-  { name: "acre",              label: "ac",   description: "Acre — large land parcels" },
-  { name: "hectare",           label: "ha",   description: "Hectare — site area planning" },
+  // ─────────────────────────────────────────────────────────────
+  // VOLUME
+  // ─────────────────────────────────────────────────────────────
+  { label: "cubic millimeter", symbol: "mm³", category: "volume" },
+  { label: "cubic centimeter", symbol: "cm³", category: "volume" },
+  { label: "cubic meter", symbol: "m³", category: "volume" },
+  { label: "cubic foot", symbol: "ft³", category: "volume" },
+  { label: "cubic yard", symbol: "yd³", category: "volume" },
 
-  // ── Volume ──────────────────────────────────────────────────────────────────
-  { name: "cubic millimeter",  label: "mm³",  description: "Cubic millimeter — precision components" },
-  { name: "cubic centimeter",  label: "cm³",  description: "Cubic centimeter — small volumes" },
-  { name: "cubic meter",       label: "m³",   description: "Cubic meter — concrete, excavation, fill" },
-  { name: "cubic foot",        label: "ft³",  description: "Cubic foot — imperial volume measurement" },
-  { name: "cubic yard",        label: "yd³",  description: "Cubic yard — concrete ordering, earthworks" },
+  // ─────────────────────────────────────────────────────────────
+  // WEIGHT / MASS
+  // ─────────────────────────────────────────────────────────────
+  { label: "milligram", symbol: "mg", category: "weight" },
+  { label: "gram", symbol: "g", category: "weight" },
+  { label: "kilogram", symbol: "kg", category: "weight" },
+  { label: "tonne", symbol: "t", category: "weight" },
+  { label: "pound", symbol: "lb", category: "weight" },
+  { label: "ounce", symbol: "oz", category: "weight" },
+  { label: "ton", symbol: "ton", category: "weight" },
+  { label: "long ton", symbol: "LT", category: "weight" },
 
-  // ── Mass / Weight ───────────────────────────────────────────────────────────
-  { name: "milligram",   label: "mg",   description: "Milligram — chemical additives, sealants" },
-  { name: "gram",        label: "g",    description: "Gram — small material quantities, adhesives" },
-  { name: "kilogram",    label: "kg",   description: "Kilogram — cement bags, rebar, general materials" },
-  { name: "tonne",       label: "t",    description: "Metric tonne (1,000 kg) — bulk aggregates, steel" },
-  { name: "pound",       label: "lb",   description: "Pound — imperial weight, US material specs" },
-  { name: "ounce",       label: "oz",   description: "Ounce — sealants, chemical compounds" },
-  { name: "ton",         label: "ton",  description: "Short ton (2,000 lb) — US bulk materials" },
-  { name: "long ton",    label: "LT",   description: "Long ton (2,240 lb) — UK bulk materials" },
+  // ─────────────────────────────────────────────────────────────
+  // LIQUID / VOLUME
+  // ─────────────────────────────────────────────────────────────
+  { label: "milliliter", symbol: "ml", category: "volume" },
+  { label: "liter", symbol: "L", category: "volume" },
+  { label: "gallon", symbol: "gal", category: "volume" },
+  { label: "imperial gallon", symbol: "imp gal", category: "volume" },
+  { label: "fluid ounce", symbol: "fl oz", category: "volume" },
+  { label: "barrel", symbol: "bbl", category: "volume" },
 
-  // ── Liquid / Fluid ──────────────────────────────────────────────────────────
-  { name: "milliliter",  label: "ml",   description: "Milliliter — chemical additives, paint tints" },
-  { name: "liter",       label: "L",    description: "Liter — paint, solvents, water, fuel" },
-  { name: "gallon",      label: "gal",  description: "Gallon (US) — paint, fuel, water supply" },
-  { name: "imperial gallon", label: "imp gal", description: "Imperial gallon (UK) — fuel, liquids" },
-  { name: "fluid ounce", label: "fl oz", description: "Fluid ounce — small liquid measures" },
-  { name: "barrel",      label: "bbl",  description: "Barrel — bitumen, fuel, bulk liquids" },
+  // ─────────────────────────────────────────────────────────────
+  // QUANTITY / COUNT
+  // ─────────────────────────────────────────────────────────────
+  { label: "piece", symbol: "pc", category: "quantity" },
+  { label: "unit", symbol: "unit", category: "quantity" },
+  { label: "number", symbol: "no.", category: "quantity" },
+  { label: "each", symbol: "ea", category: "quantity" },
+  { label: "pair", symbol: "pr", category: "quantity" },
+  { label: "set", symbol: "set", category: "quantity" },
+  { label: "lot", symbol: "lot", category: "quantity" },
+  { label: "item", symbol: "item", category: "quantity" },
 
-  // ── Count / Discrete Units ──────────────────────────────────────────────────
-  { name: "piece",       label: "pc",   description: "Piece — individual items: bricks, blocks, fittings" },
-  { name: "unit",        label: "unit", description: "Generic unit — fixtures, appliances, fittings" },
-  { name: "number",      label: "no.",  description: "Number — numbered items in a schedule" },
-  { name: "each",        label: "ea",   description: "Each — individual items billed per item" },
-  { name: "pair",        label: "pr",   description: "Pair — hinges, brackets, handles" },
-  { name: "set",         label: "set",  description: "Set — grouped components: door set, window set" },
-  { name: "lot",         label: "lot",  description: "Lot — miscellaneous grouped items" },
-  { name: "item",        label: "item", description: "Item — general line item in a bill of quantities" },
+  // ─────────────────────────────────────────────────────────────
+  // PACKAGING
+  // ─────────────────────────────────────────────────────────────
+  { label: "bag", symbol: "bag", category: "quantity" },
+  { label: "sack", symbol: "sck", category: "quantity" },
+  { label: "box", symbol: "bx", category: "quantity" },
+  { label: "carton", symbol: "ctn", category: "quantity" },
+  { label: "pallet", symbol: "plt", category: "quantity" },
+  { label: "roll", symbol: "rl", category: "quantity" },
+  { label: "coil", symbol: "coil", category: "quantity" },
+  { label: "drum", symbol: "drm", category: "quantity" },
+  { label: "bundle", symbol: "bdl", category: "quantity" },
+  { label: "strip", symbol: "str", category: "quantity" },
+  { label: "sheet", symbol: "sht", category: "quantity" },
+  { label: "panel", symbol: "pnl", category: "quantity" },
+  { label: "slab", symbol: "slb", category: "quantity" },
+  { label: "tile", symbol: "tile", category: "quantity" },
+  { label: "block", symbol: "blk", category: "quantity" },
+  { label: "brick", symbol: "brk", category: "quantity" },
+  { label: "plank", symbol: "plk", category: "quantity" },
+  { label: "board", symbol: "brd", category: "quantity" },
+  { label: "length", symbol: "lgth", category: "quantity" },
+  { label: "pack", symbol: "pk", category: "quantity" },
+  { label: "tube", symbol: "tube", category: "quantity" },
+  { label: "can", symbol: "can", category: "quantity" },
+  { label: "bucket", symbol: "bkt", category: "quantity" },
+  { label: "container", symbol: "cont", category: "quantity" },
+  { label: "jar", symbol: "jar", category: "quantity" },
 
-  // ── Packaging ───────────────────────────────────────────────────────────────
-  { name: "bag",         label: "bag",  description: "Bag — cement, sand, gravel (50 kg paper sack)" },
-  { name: "sack",        label: "sck",  description: "Sack — bulk powder materials" },
-  { name: "box",         label: "bx",   description: "Box — nails, screws, tiles, electrical fittings" },
-  { name: "carton",      label: "ctn",  description: "Carton — tiles, paint cans, packaged goods" },
-  { name: "pallet",      label: "plt",  description: "Pallet — bulk bricks, blocks, bagged materials" },
-  { name: "roll",        label: "rl",   description: "Roll — wire mesh, felt, waterproof membrane" },
-  { name: "coil",        label: "coil", description: "Coil — electrical wire, hose pipe, rebar tie wire" },
-  { name: "drum",        label: "drm",  description: "Drum — bitumen, oil, chemical compounds" },
-  { name: "bundle",      label: "bdl",  description: "Bundle — timber lengths, rebar, conduit" },
-  { name: "strip",       label: "str",  description: "Strip — roofing tiles, shingles, flooring planks" },
-  { name: "sheet",       label: "sht",  description: "Sheet — plywood, plasterboard, glass, metal" },
-  { name: "panel",       label: "pnl",  description: "Panel — cladding, formwork, structural panels" },
-  { name: "slab",        label: "slb",  description: "Slab — stone, marble, granite, concrete precast" },
-  { name: "tile",        label: "tile", description: "Tile — ceramic, porcelain, roof tile (individual)" },
-  { name: "block",       label: "blk",  description: "Block — concrete block, masonry block" },
-  { name: "brick",       label: "brk",  description: "Brick — clay or concrete brick (individual)" },
-  { name: "plank",       label: "plk",  description: "Plank — timber floor or decking plank" },
-  { name: "board",       label: "brd",  description: "Board — timber, MDF, gypsum board (individual)" },
-  { name: "length",      label: "lgth", description: "Length — pipe, conduit, angle iron, cut to length" },
-  { name: "pack",        label: "pk",   description: "Pack — insulation, fasteners, prepackaged goods" },
-  { name: "tube",        label: "tube", description: "Tube — sealant, adhesive, caulk cartridge" },
-  { name: "can",         label: "can",  description: "Can — paint, varnish, spray paint" },
-  { name: "bucket",      label: "bkt",  description: "Bucket — paint, plaster, adhesive (5–20L)" },
-  { name: "container",   label: "cont", description: "Container — bulk imported materials, modular units" },
-  { name: "jar",         label: "jar",  description: "Jar — sealants, putty, small chemical compounds" },
+  // ─────────────────────────────────────────────────────────────
+  // TIME
+  // ─────────────────────────────────────────────────────────────
+  { label: "hour", symbol: "hr", category: "quantity" },
+  { label: "day", symbol: "day", category: "quantity" },
+  { label: "week", symbol: "wk", category: "quantity" },
+  { label: "month", symbol: "mo", category: "quantity" },
+  { label: "shift", symbol: "shft", category: "quantity" },
+  { label: "man-hour", symbol: "mh", category: "quantity" },
+  { label: "man-day", symbol: "md", category: "quantity" },
 
-  // ── Time ────────────────────────────────────────────────────────────────────
-  { name: "hour",        label: "hr",   description: "Hour — labour billing, equipment hire" },
-  { name: "day",         label: "day",  description: "Day — daily labour rate, equipment rental" },
-  { name: "week",        label: "wk",   description: "Week — weekly subcontractor engagement" },
-  { name: "month",       label: "mo",   description: "Month — long-term hire, service contracts" },
-  { name: "shift",       label: "shft", description: "Shift — 8/10/12-hr work shift for labour costing" },
-  { name: "man-hour",    label: "mh",   description: "Man-hour — combined labour productivity unit" },
-  { name: "man-day",     label: "md",   description: "Man-day — daily labour resource unit" },
+  // ─────────────────────────────────────────────────────────────
+  // ELECTRICAL
+  // ─────────────────────────────────────────────────────────────
+  { label: "kilowatt", symbol: "kW", category: "quantity" },
+  { label: "kilowatt-hour", symbol: "kWh", category: "quantity" },
+  { label: "ampere", symbol: "A", category: "quantity" },
+  { label: "volt", symbol: "V", category: "quantity" },
+  { label: "kilovolt-ampere", symbol: "kVA", category: "quantity" },
 
-  // ── Electrical ──────────────────────────────────────────────────────────────
-  { name: "kilowatt",         label: "kW",   description: "Kilowatt — power rating of equipment" },
-  { name: "kilowatt-hour",    label: "kWh",  description: "Kilowatt-hour — electricity consumption" },
-  { name: "ampere",           label: "A",    description: "Ampere — current rating, circuit sizing" },
-  { name: "volt",             label: "V",    description: "Volt — voltage specification" },
-  { name: "kilovolt-ampere",  label: "kVA",  description: "Kilovolt-ampere — generator/transformer rating" },
+  // ─────────────────────────────────────────────────────────────
+  // PRESSURE / FORCE
+  // ─────────────────────────────────────────────────────────────
+  { label: "pascal", symbol: "Pa", category: "quantity" },
+  { label: "megapascal", symbol: "MPa", category: "quantity" },
+  { label: "bar", symbol: "bar", category: "quantity" },
+  { label: "psi", symbol: "psi", category: "quantity" },
+  { label: "newton", symbol: "N", category: "quantity" },
+  { label: "kilonewton", symbol: "kN", category: "quantity" },
 
-  // ── Pressure / Force ────────────────────────────────────────────────────────
-  { name: "pascal",           label: "Pa",   description: "Pascal — pressure measurement" },
-  { name: "megapascal",       label: "MPa",  description: "Megapascal — concrete compressive strength" },
-  { name: "bar",              label: "bar",  description: "Bar — hydraulic pressure, pipe pressure rating" },
-  { name: "psi",              label: "psi",  description: "Pounds per square inch — imperial pressure" },
-  { name: "newton",           label: "N",    description: "Newton — force measurement" },
-  { name: "kilonewton",       label: "kN",   description: "Kilonewton — structural load specification" },
+  // ─────────────────────────────────────────────────────────────
+  // RATE / RATIO
+  // ─────────────────────────────────────────────────────────────
+  { label: "percent", symbol: "%", category: "quantity" },
+  { label: "ratio", symbol: "ratio", category: "quantity" },
+  { label: "parts per million", symbol: "ppm", category: "quantity" },
 
-  // ── Rate / Ratio ────────────────────────────────────────────────────────────
-  { name: "percent",          label: "%",    description: "Percentage — slopes, mixes, waste factors" },
-  { name: "ratio",            label: "ratio", description: "Ratio — mix ratios e.g. 1:2:4 concrete" },
-  { name: "parts per million", label: "ppm", description: "Parts per million — water quality, chemical dosing" },
+  // ─────────────────────────────────────────────────────────────
+  // TEMPERATURE
+  // ─────────────────────────────────────────────────────────────
+  { label: "degree celsius", symbol: "°C", category: "quantity" },
+  { label: "degree fahrenheit", symbol: "°F", category: "quantity" },
 
-  // ── Temperature ─────────────────────────────────────────────────────────────
-  { name: "degree celsius",    label: "°C",  description: "Celsius — curing conditions, asphalt temps" },
-  { name: "degree fahrenheit", label: "°F",  description: "Fahrenheit — imperial temperature spec" },
+  // ─────────────────────────────────────────────────────────────
+  // TRIPS / LOADS
+  // ─────────────────────────────────────────────────────────────
+  { label: "trip", symbol: "trip", category: "quantity" },
+  { label: "load", symbol: "load", category: "quantity" },
+  { label: "truckload", symbol: "TL", category: "quantity" },
+  { label: "skip", symbol: "skip", category: "quantity" },
 
-  // ── Trips / Loads ───────────────────────────────────────────────────────────
-  { name: "trip",        label: "trip", description: "Trip — truck delivery run, skip hire removal" },
-  { name: "load",        label: "load", description: "Load — truck load of aggregate, soil, concrete" },
-  { name: "truckload",   label: "TL",   description: "Truckload — full truck of bulk material" },
-  { name: "skip",        label: "skip", description: "Skip — waste skip bin hire unit" },
-
-  // ── Miscellaneous Construction ───────────────────────────────────────────────
-  { name: "point",       label: "pt",   description: "Point — electrical or plumbing outlet point" },
-  { name: "run",         label: "run",  description: "Run — continuous installation: cable run, pipe run" },
-  { name: "joint",       label: "jnt",  description: "Joint — pipe joint, expansion joint" },
-  { name: "connection",  label: "conn", description: "Connection — service connection point" },
-  { name: "storey",      label: "sty",  description: "Storey — floor level in multi-storey costing" },
-  { name: "bay",         label: "bay",  description: "Bay — structural bay between columns" },
-  { name: "span",        label: "span", description: "Span — beam or truss span" },
-  { name: "lift",        label: "lift", description: "Lift — concrete pour lift height" },
-  { name: "coat",        label: "coat", description: "Coat — paint or render application coat" },
-  { name: "layer",       label: "lyr",  description: "Layer — compaction layer, screed layer" },
-  { name: "pass",        label: "pass", description: "Pass — compaction pass, grading pass" },
-  { name: "application", label: "app",  description: "Application — chemical treatment, sealant application" },
-  { name: "test",        label: "test", description: "Test — soil test, concrete cube test, pressure test" },
-  { name: "sample",      label: "spl",  description: "Sample — material sample for QA/QC" },
-  { name: "allowance",   label: "alw",  description: "Provisional allowance — contingency or PC sum item" },
-  { name: "sum",         label: "sum",  description: "Provisional/prime cost sum — lump cost allowance" },
-  { name: "lump sum",    label: "LS",   description: "Lump sum — fixed price for a scope of work" },
+  // ─────────────────────────────────────────────────────────────
+  // MISCELLANEOUS CONSTRUCTION
+  // ─────────────────────────────────────────────────────────────
+  { label: "point", symbol: "pt", category: "quantity" },
+  { label: "run", symbol: "run", category: "quantity" },
+  { label: "joint", symbol: "jnt", category: "quantity" },
+  { label: "connection", symbol: "conn", category: "quantity" },
+  { label: "storey", symbol: "sty", category: "quantity" },
+  { label: "bay", symbol: "bay", category: "quantity" },
+  { label: "span", symbol: "span", category: "quantity" },
+  { label: "lift", symbol: "lift", category: "quantity" },
+  { label: "coat", symbol: "coat", category: "quantity" },
+  { label: "layer", symbol: "lyr", category: "quantity" },
+  { label: "pass", symbol: "pass", category: "quantity" },
+  { label: "application", symbol: "app", category: "quantity" },
+  { label: "test", symbol: "test", category: "quantity" },
+  { label: "sample", symbol: "spl", category: "quantity" },
+  { label: "allowance", symbol: "alw", category: "quantity" },
+  { label: "sum", symbol: "sum", category: "quantity" },
+  { label: "lump sum", symbol: "LS", category: "quantity" },
 ];
 
-// ─── Seed Function ────────────────────────────────────────────────────────────
+/**
+ * Seed SystemUoM
+ */
 const seed = async () => {
   try {
-    await mongoose.connect(process.env.DATABASE_URL as string);
-    console.log("✅  Connected to MongoDB");
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL is not defined");
+    }
+
+    await mongoose.connect(process.env.DATABASE_URL);
+
+    console.log("✅ Connected to MongoDB");
 
     let inserted = 0;
-    let skipped  = 0;
+    let skipped = 0;
 
     for (const unit of units) {
-      const exists = await UnitOfMeasure.findOne({ name: unit.name });
-      if (exists) {
-        console.log(`   ⟳  Skipped  (already exists): ${unit.name}`);
+      const existingUnit = await SystemUoM.findOne({
+        $or: [
+          { label: unit.label },
+          { symbol: unit.symbol },
+        ],
+      });
+
+      if (existingUnit) {
+        console.log(`⏭️  Skipped: ${unit.label} (${unit.symbol})`);
         skipped++;
         continue;
       }
-      await UnitOfMeasure.create(unit);
-      console.log(`   ✓  Inserted: ${unit.name} (${unit.label})`);
+
+      await SystemUoM.create(unit);
+
+      console.log(`✅ Inserted: ${unit.label} (${unit.symbol})`);
       inserted++;
     }
 
-    console.log(`\n📦  Seed complete — ${inserted} inserted, ${skipped} skipped`);
-    process.exit(0);
-  } catch (err) {
-    console.error("❌  Seed failed:", err);
-    process.exit(1);
+    console.log("\n────────────────────────────────────");
+    console.log("📦 SystemUoM seed complete");
+    console.log(`✅ Inserted: ${inserted}`);
+    console.log(`⏭️  Skipped: ${skipped}`);
+    console.log(`📊 Total units: ${units.length}`);
+    console.log("────────────────────────────────────\n");
+
+  } catch (error) {
+    console.error("❌ SystemUoM seed failed:", error);
+    process.exitCode = 1;
+  } finally {
+    await mongoose.disconnect();
+    console.log("🔌 MongoDB connection closed");
   }
 };
 
