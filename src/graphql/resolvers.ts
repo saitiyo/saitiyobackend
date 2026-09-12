@@ -8,7 +8,8 @@ import teamMemberResolvers from "../services/team/teamMember.resolvers"
 import BudgetResolvers from "../services/budget/budget.resolvers"
 import SitePlanResolvers from "../services/plans/siteplans.resolvers"
 import SupportTeamMemberResolvers from "../services/team/supportTeamMember.resolvers"
-import UnitOfMeasureResolvers from "../services/unitsOfMeasure/unitsOfMeasure.resolvers"
+import inventoryResolvers from "../services/inventory/inventory.resolvers"
+// import UnitOfMeasureResolvers from "../services/unitsOfMeasure/unitsOfMeasure.resolvers"
 
 // Combine all resolvers into a single export
 
@@ -20,5 +21,6 @@ export const allResolvers = mergeResolvers([
   BudgetResolvers,
   SitePlanResolvers,
   SupportTeamMemberResolvers,
+  inventoryResolvers
   // UnitOfMeasureResolvers
 ])
