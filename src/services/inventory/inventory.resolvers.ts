@@ -52,7 +52,7 @@ const buildInventoryItem = async (item: any) => {
   };
 };
 
-export const inventoryResolvers = {
+const inventoryResolvers = {
   // ─────────────────────────────────────────────
   // QUERY RESOLVERS
   // ─────────────────────────────────────────────
@@ -796,3 +796,5 @@ export const inventoryResolvers = {
     updatedAt: (parent: any) => parent.updatedAt,
   },
 };
+
+export default inventoryResolvers;

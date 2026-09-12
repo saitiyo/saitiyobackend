@@ -1,4 +1,4 @@
-export const inventoryTypes = /* GraphQL */ `
+const inventoryTypes = /* GraphQL */ `
 
   scalar DateTime
 
@@ -236,3 +236,6 @@ export const inventoryTypes = /* GraphQL */ `
     ): SystemUoM!
   }
 `;
+
+
+export default inventoryTypes;
