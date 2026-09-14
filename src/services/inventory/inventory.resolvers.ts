@@ -27,7 +27,7 @@ const buildInventoryItem = async (item: any) => {
   const defaultUom = uoms.find((uom: any) => uom.isDefault) || null;
 
   return {
-    id: item._id.toString(),
+    id:String(item._id),
     name: item.name,
     imageUri: item.imageUri || null,
     images: item.images || [],
@@ -38,7 +38,7 @@ const buildInventoryItem = async (item: any) => {
     isArchived: item.isArchived ?? false,
     isMarketplaceVisible: item.isMarketplaceVisible ?? true,
     itemType: item.itemType,
-    siteId: item.siteId ? item.siteId.toString() : null,
+    siteId: item.siteId ? item.siteId : null,
     uoms,
     defaultUom,
     primaryCategory: item.primaryCategory || "Other",
@@ -89,7 +89,9 @@ const inventoryResolvers = {
         createdAt: -1,
       });
 
-      return Promise.all(items.map((item) => buildInventoryItem(item)));
+      const data = await Promise.all(items.map((item) => buildInventoryItem(item)));
+
+      return data;
     },
 
     /**
@@ -773,7 +775,7 @@ const inventoryResolvers = {
   },
 
   InventoryItem: {
-    id: (parent: any) => toId(parent),
+    // id: (parent: any) => toId(parent),
     siteId: (parent: any) => toId(parent.siteId),
     images: (parent: any) => parent.images || [],
     stock: (parent: any) => parent.stock ?? 0,

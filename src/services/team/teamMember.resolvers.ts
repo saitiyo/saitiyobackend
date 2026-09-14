@@ -58,23 +58,25 @@ const teamMemberResolvers = {
           .sort({ createdAt: -1 });
 
 
-        return invitations.map(async(invitation) => {
-          const  _invitedBy = await User.findById(invitation.invitedBy);
-          const __site = await Site.findById(invitation.siteId);
+        return Promise.all(invitations.map(async (invitation) => {
+          const [_invitedBy, __site] = await Promise.all([
+            User.findById(invitation.invitedBy),
+            Site.findById(invitation.siteId)
+          ]);
 
-          return {...invitation.toObject(),
-          id: invitation._id,
-          siteName: __site?.name || 'MY SITE',
-          invitedByUser:_invitedBy ? {
-            id: _invitedBy._id,
-            firstName: _invitedBy.firstName,
-            lastName: _invitedBy.lastName,
-            email: _invitedBy.email,
-            mobileNumber: _invitedBy.mobileNumber
-          } : null
+          return {
+            ...invitation.toObject(),
+            id: invitation._id,
+            siteName: __site?.name || 'MY SITE',
+            invitedByUser: _invitedBy ? {
+              id: _invitedBy._id,
+              firstName: _invitedBy.firstName,
+              lastName: _invitedBy.lastName,
+              email: _invitedBy.email,
+              mobileNumber: _invitedBy.mobileNumber
+            } : null
           };
-
-        });
+        }));
         
 
       } catch (error) {
@@ -97,23 +99,25 @@ const teamMemberResolvers = {
 
         
 
-       return invitations.map(async(invitation) => {
-        const  _invitedBy = await User.findById(invitation.invitedBy);
-          const __site = await Site.findById(invitation.siteId);
+       return Promise.all(invitations.map(async (invitation) => {
+        const [_invitedBy, __site] = await Promise.all([
+          User.findById(invitation.invitedBy),
+          Site.findById(invitation.siteId)
+        ]);
 
-          return {...invitation.toObject(),
+        return {
+          ...invitation.toObject(),
           id: invitation._id,
           siteName: __site?.name || 'MY SITE',
-          invitedByUser:_invitedBy ? {
+          invitedByUser: _invitedBy ? {
             id: _invitedBy._id,
             firstName: _invitedBy.firstName,
             lastName: _invitedBy.lastName,
             email: _invitedBy.email,
             mobileNumber: _invitedBy.mobileNumber
           } : null
-          };
-
-        });
+        };
+      }));
         
 
       } catch (error) {
@@ -382,6 +386,31 @@ const teamMemberResolvers = {
             success: false,
             message: "Invitation has expired",
             data: null
+          };
+        }
+
+        const existingTeamMember = await TeamMember.findOne({
+          siteId: invitation.siteId,
+          userId,
+          status: { $in: ['ACTIVE', 'INACTIVE'] }
+        });
+
+        if (existingTeamMember) {
+          invitation.status = 'ACCEPTED';
+          invitation.acceptedAt = invitation.acceptedAt || new Date();
+          await invitation.save();
+
+          const populatedMember = await TeamMember.findById(existingTeamMember._id)
+            .populate('userId', 'firstName lastName email mobileNumber');
+
+          return {
+            success: true,
+            message: "Invitation accepted successfully",
+            data: {
+              ...populatedMember?.toObject(),
+              id: populatedMember?._id,
+              user: (populatedMember?.toObject() as any).userId
+            }
           };
         }
 

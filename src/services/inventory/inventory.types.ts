@@ -79,7 +79,7 @@ const inventoryTypes = /* GraphQL */ `
   # ────────────────────────────────────────────
 
   type InventoryItem {
-    id: ID!
+    id:ID!
     name: String!
     imageUri: String
     images: [String!]!
