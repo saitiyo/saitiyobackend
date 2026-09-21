@@ -276,7 +276,6 @@ const inventoryResolvers = {
               itemId: createdItem._id,
               label: "unit",
               conversionFactor: 1,
-              sellingPrice: price,
               costPrice: costPrice,
               isBaseUnit: true,
               isDefault: true,
@@ -508,7 +507,6 @@ const inventoryResolvers = {
           itemId: string;
           label: string;
           conversionFactor: number;
-          sellingPrice: number;
           costPrice: number;
           isDefault: boolean;
           isBaseUnit: boolean;
@@ -526,7 +524,7 @@ const inventoryResolvers = {
         throw new Error("Conversion factor must be greater than zero");
       }
 
-      if (input.sellingPrice < 0 || input.costPrice < 0) {
+      if (input.costPrice < 0) {
         throw new Error("Prices cannot be negative");
       }
 
@@ -551,7 +549,6 @@ const inventoryResolvers = {
         itemId: item._id,
         label: input.label.trim(),
         conversionFactor: input.conversionFactor,
-        sellingPrice: input.sellingPrice,
         costPrice: input.costPrice,
         isBaseUnit: input.isBaseUnit,
         isDefault: input.isDefault,
@@ -576,7 +573,6 @@ const inventoryResolvers = {
         input: {
           label?: string;
           conversionFactor?: number;
-          sellingPrice?: number;
           costPrice?: number;
           isDefault?: boolean;
           isBaseUnit?: boolean;
@@ -593,9 +589,6 @@ const inventoryResolvers = {
         throw new Error("Conversion factor must be greater than zero");
       }
 
-      if (input.sellingPrice !== undefined && input.sellingPrice < 0) {
-        throw new Error("Selling price cannot be negative");
-      }
 
       if (input.costPrice !== undefined && input.costPrice < 0) {
         throw new Error("Cost price cannot be negative");
@@ -607,10 +600,6 @@ const inventoryResolvers = {
 
       if (input.conversionFactor !== undefined) {
         uom.conversionFactor = input.conversionFactor;
-      }
-
-      if (input.sellingPrice !== undefined) {
-        uom.sellingPrice = input.sellingPrice;
       }
 
       if (input.costPrice !== undefined) {

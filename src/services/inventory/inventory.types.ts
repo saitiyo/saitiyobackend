@@ -49,7 +49,6 @@ const inventoryTypes = /* GraphQL */ `
     itemId: ID!
     label: String!         # display label e.g. "Single loaf", "Crate of 12"
     conversionFactor: Float!          # how many base units this UoM represents
-    sellingPrice: Float!
     costPrice: Float!
     isBaseUnit: Boolean!        # true for exactly one UoM per item
     isDefault: Boolean!        # shown first in selling UI
@@ -143,7 +142,6 @@ const inventoryTypes = /* GraphQL */ `
     itemId: ID!
     label: String!
     conversionFactor: Float!
-    sellingPrice: Float!
     costPrice: Float!
     isDefault: Boolean!
     isBaseUnit: Boolean!
@@ -153,7 +151,6 @@ const inventoryTypes = /* GraphQL */ `
   input UpdateItemUoMInput {
     label: String
     conversionFactor: Float
-    sellingPrice: Float
     costPrice: Float
     isDefault: Boolean
     isBaseUnit: Boolean
