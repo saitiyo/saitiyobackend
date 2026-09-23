@@ -17,13 +17,6 @@ const ItemUoMSchema = new Schema(
       trim: true,
     },
 
-    // How many base units this UoM represents
-    //
-    // Example:
-    // bottle = 1
-    // crate = 12
-    // carton = 24
-    // kg = 1
     conversionFactor: {
       type: Number,
       required: true,
@@ -63,8 +56,8 @@ const ItemUoMSchema = new Schema(
   }
 );
 
-ItemUoMSchema.index({
-  itemId: 1,
-});
+// ItemUoMSchema.index({
+//   itemId: 1,
+// });
 
 export const ItemUoM = model("ItemUoM", ItemUoMSchema);

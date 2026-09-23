@@ -13,19 +13,36 @@ const teamMemberResolvers = {
       try {
         const teamMembers = await TeamMember.find({
           siteId,
-          status: 'ACTIVE'
+          status: 'ACTIVE',
         })
           .populate('userId', 'firstName lastName email mobileNumber')
           .sort({ joinedAt: -1 });
 
-        return teamMembers.map((member) => ({
-          ...member.toObject(),
-          id: member._id,
-          user: member.toObject().userId
-        }));
+        console.log('************TEAM MEMBERS*************', teamMembers);
+
+        return teamMembers.map((member) => {
+          const userDoc = member.userId as any; // populated User doc
+
+          return {
+            id: member._id.toString(),
+            siteId: member.siteId?.toString?.() ?? member.siteId,
+            role: member.role,
+            status: member.status,
+            joinedAt: member.joinedAt,
+            user: userDoc
+              ? {
+                id: userDoc._id.toString(),
+                firstName: userDoc.firstName,
+                lastName: userDoc.lastName,
+                email: userDoc.email,
+                mobileNumber: userDoc.mobileNumber,
+              }
+              : null,
+          };
+        });
       } catch (error) {
-        console.error("Error fetching team members:", error);
-        throw new Error("Failed to fetch team members");
+        console.error('Error fetching team members:', error);
+        throw new Error('Failed to fetch team members');
       }
     },
 
@@ -77,16 +94,16 @@ const teamMemberResolvers = {
             } : null
           };
         }));
-        
+
 
       } catch (error) {
         console.error("Error fetching pending invitations:", error);
         throw new Error("Failed to fetch invitations");
       }
     },
-     /**
-     * Get all pending invitations for a user
-     */
+    /**
+    * Get all pending invitations for a user
+    */
     getAcceptedInvitations: async (_: any, { userId }: { userId: string }) => {
       try {
         const invitations = await Invitation.find({
@@ -96,29 +113,26 @@ const teamMemberResolvers = {
         })
           .sort({ createdAt: -1 });
 
+        return Promise.all(invitations.map(async (invitation) => {
+          const [_invitedBy, __site] = await Promise.all([
+            User.findById(invitation.invitedBy),
+            Site.findById(invitation.siteId)
+          ]);
 
-        
+          return {
+            ...invitation.toObject(),
+            id: invitation._id,
+            siteName: __site?.name || 'MY SITE',
+            invitedByUser: _invitedBy ? {
+              id: _invitedBy._id,
+              firstName: _invitedBy.firstName,
+              lastName: _invitedBy.lastName,
+              email: _invitedBy.email,
+              mobileNumber: _invitedBy.mobileNumber
+            } : null
+          };
+        }));
 
-       return Promise.all(invitations.map(async (invitation) => {
-        const [_invitedBy, __site] = await Promise.all([
-          User.findById(invitation.invitedBy),
-          Site.findById(invitation.siteId)
-        ]);
-
-        return {
-          ...invitation.toObject(),
-          id: invitation._id,
-          siteName: __site?.name || 'MY SITE',
-          invitedByUser: _invitedBy ? {
-            id: _invitedBy._id,
-            firstName: _invitedBy.firstName,
-            lastName: _invitedBy.lastName,
-            email: _invitedBy.email,
-            mobileNumber: _invitedBy.mobileNumber
-          } : null
-        };
-      }));
-        
 
       } catch (error) {
         console.error("Error fetching accepted invitations:", error);
@@ -126,9 +140,9 @@ const teamMemberResolvers = {
       }
     },
 
-     /**
-     * Get all pending invitations for a user
-     */
+    /**
+    * Get all pending invitations for a user
+    */
     getRejectedInvitations: async (_: any, { userId }: { userId: string }) => {
       try {
         const invitations = await Invitation.find({
@@ -139,13 +153,13 @@ const teamMemberResolvers = {
           .sort({ createdAt: -1 });
 
 
-        const  _invitedBy = await User.findById(invitations[0]?.invitedBy);
+        const _invitedBy = await User.findById(invitations[0]?.invitedBy);
 
         return invitations.map((invitation) => ({
           ...invitation.toObject(),
           id: invitation._id,
-          siteName:'MY SITE',
-          invitedByUser:_invitedBy ? {
+          siteName: 'MY SITE',
+          invitedByUser: _invitedBy ? {
             id: _invitedBy._id,
             firstName: _invitedBy.firstName,
             lastName: _invitedBy.lastName,
@@ -153,7 +167,7 @@ const teamMemberResolvers = {
             mobileNumber: _invitedBy.mobileNumber
           } : null
         }));
-        
+
 
       } catch (error) {
         console.error("Error fetching rejected invitations:", error);
@@ -264,7 +278,7 @@ const teamMemberResolvers = {
           };
         }
 
-        console.log(invitedByUserId , "is inviting to site:", siteId);
+        console.log(invitedByUserId, "is inviting to site:", siteId);
 
         // Check if inviter is owner or manager
         const inviter = await TeamMember.findOne({
@@ -331,7 +345,7 @@ const teamMemberResolvers = {
         });
 
         const savedInvitation = await invitation.save();
-         
+
         return {
           success: true,
           message: "Invitation sent successfully",
